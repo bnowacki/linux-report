@@ -35,9 +35,10 @@ WARNING: Read carefully the system documentation because in modern Ubuntu, "runl
 
 In the installed system, remote terminal access using SSH protocol must be set up for:
 
-superuser, using only public SSH key (logging in as root using his/her password must be disabled)
-all other users, using both public key and password
-This service should be automatically started only on the 4th runlevel. Instead of editing /etc/inittab, rc scripts placed in /etc/rc.d directory should be used. Booting menu (grub) should be configured to give user the option of selecting between 3rd and 4th runlevel.
+[x] superuser, using only public SSH key (logging in as root using his/her password must be disabled)
+[x] all other users, using both public key and password
+[x] This service should be automatically started only on the 4th runlevel. Instead of editing /etc/inittab, rc scripts placed in /etc/rc.d directory should be used.
+[x] Booting menu (grub) should be configured to give user the option of selecting between 3rd and 4th runlevel.
 
 Additional requirements
 Student selects at most 3 requirements from below list.
@@ -46,16 +47,19 @@ Points: 5 pts for each realized requirement
 
 Preliminary requirements: basic and advanced requirements must be fulfilled
 
-users is the basic group for athos, porthos and aramis. Additionally athos and porthos should belong to writers group, which has write permissions on selected directory, which requires setting umask for users and setgid for directory.
-manually download, configure, compile and install a program, which sources are available as .tar.gz archive
-same as above, however sources are available as SRPM (Debian/Ubuntu: source package - see: BuildingTutorial in Debian Wiki). In case student chooses both 2nd and 3rd requirement, 3rd requirement must be realised using a different program
-using sudo configuration, allow user aramis (and only him) to shut down the system using shutdown command
-users that have logged in and remain idle for longer than 5 minutes are automatically logged out (use autolog)
-every 30 minutes a report containing list of files modified during last 30 minutes in users' home directories must be generated - use cron and find
-limit disk space usage for users athos, porthos and aramis - use quota
-limit the number of processes that may be run simultaneously by a user belonging to users group to 10. Use PAM mechanism (pam_limits module).
+[ ] users is the basic group for athos, porthos and aramis. Additionally athos and porthos should belong to writers group, which has write permissions on selected directory, which requires setting umask for users and setgid for directory.
+[ ] manually download, configure, compile and install a program, which sources are available as .tar.gz archive
+[ ] same as above, however sources are available as SRPM (Debian/Ubuntu: source package - see: BuildingTutorial in Debian Wiki). In case student chooses both 2nd and 3rd requirement, 3rd requirement must be realised using a different program
+[ ] using sudo configuration, allow user aramis (and only him) to shut down the system using shutdown command
+[ ] users that have logged in and remain idle for longer than 5 minutes are automatically logged out (use autolog)
+[ ] every 30 minutes a report containing list of files modified during last 30 minutes in users' home directories must be generated - use cron and find
+[ ] limit disk space usage for users athos, porthos and aramis - use quota
+[ ] limit the number of processes that may be run simultaneously by a user belonging to users group to 10. Use PAM mechanism (pam_limits module).
+
+
 Materials and documentation
-Source of knowledge on operations performed during installation and configuration of the system is [LINUX documentation], manuals and available HOWTOs. It is required to get familiar with following topics:
+Source of knowledge on operations performed during installation and configuration of the system is [LINUX documentation], manuals and available HOWTOs.
+It is required to get familiar with following topics:
 
 installing system using chroot
 creating partitions and file systems

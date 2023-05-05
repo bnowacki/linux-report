@@ -194,8 +194,104 @@ Basic requirements
 Advanced requirements
 ===================================
 
+1. Install the OpenSSH server 
+    The OpenSSH server allows remote terminal access using the SSH protocol. You can install it by running the following command:
+        $ sudo apt install openssh-server
 
+2. Disable root login via password
+    To do this the SSH configuration file `/etc/ssh/sshd_config` has to be modified.
+    ( Actually on Ubuntu 22.04 root login via password is disabled by default )
+    Locate the following line:
+        #PermitRootLogin yes
+    uncomment it and change it to:
+        PermitRootLogin prohibit-password
 
+3. Configure SSH access for the superuser
+    To allow remote access to the superuser using only the public SSH key, 
+    you need to add the public key to the /root/.ssh/authorized_keys file.
+
+    To generate public/private key pair you can use the following command:
+        $ ssh-keygen
+    by default it will use `rsa` algorithm
+    Run the above command on a machine that you want to login from in ~/.ssh folder,
+    then copy the generated public key to /root/.ssh/authorized_keys file on the configured server.
+
+4. Configure SSH access for other users
+    repeat the steps from point 3. but instead of modifying the /root/.ssh/authorized_keys file,
+    modify ~/.ssh/authorized_keys files in home directories of respective users.
+
+    Password login is enabled by default for non root users,
+    but it can be changed by modifying `/etc/ssh/sshd_config` file
+    find the line:
+        #PasswordAuthentication yes
+    uncomment it and choose `yes` or `no` option
+
+5. Configure systemd targets
+    Because there are no runlevels in Ubuntu systemd targets have to be used.
+    One way of meeting the task's requirements is to run the following set of commands:
+        
+        cd into directory with systemd unit configuration files
+            $ cd /usr/lib/systemd/system
+        copy multi-user.target to "inherit" it's configuration
+            $ cp multi-user.target multi-user-ssh.target
+        create a directory for multi-user-ssh dependecies
+            $ mkdir multi-user-ssh.target.wants
+        symlink multi-user.target into the created .wants dir,
+        in this way multi-user-ssh.target inherits all of the dependencies of multi-user.target 
+            $ ln -s multi-user.target multi-user-ssh.target.wants/multi-user.target
+        symlink ssh.service to make it a dependancy
+            $ ln -s ssh.service multi-user-ssh.target.wants/ssh.service
+        disable ssh service while running the multi-user.target
+            $ systemctl disable ssh.service
+
+6. Configure the booting menu to give the user the option of selecting multi-user-ssh.target
+    To do this modify the GRUB configuration file `/etc/default/grub`.
+    
+    Locate the following lines:
+        GRUB_TIMEOUT_STYLE=hidden
+        GRUB_TIMEOUT=0
+    And change it to:
+        GRUB_TIMEOUT_STYLE=hidden
+        GRUB_TIMEOUT=10
+    here 10 is the number of seconds, before the system boots with the default option
+
+    next modify the `/etc/grub.d/40_custom` file (or create it if it doesn't exist)
+    the constents of the file should be as follows:
+    
+    ```
+        #!/bin/sh
+        exec tail -n +3 $0
+        # This file provides an easy way to add custom menu entries.  Simply type the
+        # menu entries you want to add after this comment.  Be careful not to change
+        # the 'exec tail' line above.
+        
+        menuentry 'Ubuntu ssh enabled' --class ubuntu --class gnu-linux --class gnu --class os $menuentry_id_option 'gnulinux-simple-18e0b67e-dfd7-41c7-a47a-74b9ca6e7058' {
+                recordfail
+                load_video
+                gfxmode $linux_gfx_mode
+                insmod gzio
+                if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
+                insmod part_gpt
+                insmod ext2
+                set root='hd0,gpt2'
+                if [ x$feature_platform_search_hint = xy ]; then
+                  search --no-floppy --fs-uuid --set=root --hint-bios=hd0,gpt2 --hint-efi=hd0,gpt2 --hint-baremetal=ahci0,gpt2  32f83ef2-253a-4059-9c49-085378a55f49
+                else
+                  search --no-floppy --fs-uuid --set=root 32f83ef2-253a-4059-9c49-085378a55f49
+                fi
+                linux   /vmlinuz-5.15.0-71-generic root=/dev/mapper/ubuntu--vg-ubuntu--lv systemd.unit=multi-user-ssh.target ro
+                initrd  /initrd.img-5.15.0-71-generic
+        }
+    ```
+
+    pay attention to the linux ... line
+        `systemd.unit=multi-user-ssh.target`
+    fragment specifies with which systemd target the system will boot
+
+    to finalize the changes run
+        $ sudo update-grub
+    
+    now after rebooting you should be able to see `Ubuntu ssh enabled` option in the GRUB menu.
 
 ===================================
 Additional requirements
