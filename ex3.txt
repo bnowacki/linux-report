@@ -1,0 +1,65 @@
+Basic requirements
+Points: 20
+
+Choose Linux distribution to be installed (if possible) in text mode - just like real servers are.
+
+Configure the installed system to meet the following requirements:
+
+[x] System should contain account of a user with name corresponding to the name of the student working on this exercise. This user should belong to at least two groups and should be able to change his identity to superuser (usermod, su, id, Debian/Ubuntu: sudo, system group adm)
+
+[x] Network interface configured to acquire network address using DHCP. Ability to reconfigure network interface to use static IP is required.
+
+[x] System should also contain three other users: athos, porthos and aramis. Two of these users should belong to users group (useradd, usermod, groupadd, groupmod, /etc/skel)
+
+[x] All user accounts should have password expiry date set to 30 days (chage, passwd, /etc/passwd, /etc/shadow)
+
+[x] System should contain temporary group operators, requiring knowledge of the password (groups, gpasswd). Show how to switch temporarily group from one of the created users (newgrp, sg, groups, /etc/group, /etc/gshadow)
+
+[x] For every user enviroment variable LOGINTIME should be created after logging in. This variable should contain UTC time of the login (date, /etc/profile, /etc/profile.d, export)
+
+[x] Find in a system at least one program that has two versions of its binaries: statically linked and dynamically linked. Compare their sizes. Find for such a program a list of shared libraries that it is using and demonstrate that these libraries are present in the system (ldd, lddconfig, /etc/ld.so.conf, /etc/ld.so.d/*)
+
+[x] When the system is idle synchronize the system time with external time server (batch, rdate, date, cal, hwclock, timeconfig, /etc/sysconfig/time)
+
+[x] All software packages in the system should be updated to their latest versions. Additionally, for any given file determine the package from which it was installed (apt, arch, rpm, uname, yum, aptitude)
+
+
+Advanced requirements
+Points: 15
+
+Preliminary requirements: basic requirements must be fulfiled
+
+During the last step of booting sequence a process called init is started. It is a parent of all other processes in the system. Its main task is executing commands based on required runlevel and contents of /etc/inittab file. Default runlevel, giving access to terminal (text mode) for multiple users is 3. 5th runlevel is used to run graphical user interface, while 4th runlevel usually remains unused and is equivalent to 3rd runlevel.
+
+WARNING: Read carefully the system documentation because in modern Ubuntu, "runlevels" were replaced by "targets". Use proper "target"!
+
+In the installed system, remote terminal access using SSH protocol must be set up for:
+
+superuser, using only public SSH key (logging in as root using his/her password must be disabled)
+all other users, using both public key and password
+This service should be automatically started only on the 4th runlevel. Instead of editing /etc/inittab, rc scripts placed in /etc/rc.d directory should be used. Booting menu (grub) should be configured to give user the option of selecting between 3rd and 4th runlevel.
+
+Additional requirements
+Student selects at most 3 requirements from below list.
+
+Points: 5 pts for each realized requirement
+
+Preliminary requirements: basic and advanced requirements must be fulfilled
+
+users is the basic group for athos, porthos and aramis. Additionally athos and porthos should belong to writers group, which has write permissions on selected directory, which requires setting umask for users and setgid for directory.
+manually download, configure, compile and install a program, which sources are available as .tar.gz archive
+same as above, however sources are available as SRPM (Debian/Ubuntu: source package - see: BuildingTutorial in Debian Wiki). In case student chooses both 2nd and 3rd requirement, 3rd requirement must be realised using a different program
+using sudo configuration, allow user aramis (and only him) to shut down the system using shutdown command
+users that have logged in and remain idle for longer than 5 minutes are automatically logged out (use autolog)
+every 30 minutes a report containing list of files modified during last 30 minutes in users' home directories must be generated - use cron and find
+limit disk space usage for users athos, porthos and aramis - use quota
+limit the number of processes that may be run simultaneously by a user belonging to users group to 10. Use PAM mechanism (pam_limits module).
+Materials and documentation
+Source of knowledge on operations performed during installation and configuration of the system is [LINUX documentation], manuals and available HOWTOs. It is required to get familiar with following topics:
+
+installing system using chroot
+creating partitions and file systems
+basics of bootloader configuration
+package management
+network configuration
+system services management

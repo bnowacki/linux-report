@@ -1,0 +1,202 @@
+===================================
+
+Operating Systems IT 2022/2023
+Exercise 3 - Linux installation
+
+===================================
+
+Authors:
+    - Izabela Wochna
+    - Stanisław Marciniak
+    - Bartosz Nowacki 247036
+
+===================================
+
+Linux distribution and version: Ubuntu Server 22.04.2
+
+Installation steps:
+    1. On the initial screen pick the "Try or Install Ubuntu Server" option
+    2. Select the preferred language and keyboard layout
+    3. For the base of the installation select: Ubuntu Server
+    4. Network configuration:
+        4.1. Leave the NAT network adapter unchanged
+        4.2. For the LAN network adapter:
+                - set IPv4 method to manual
+                - set Subnet field to 10.0.0.0/24
+                - set Address field 10.0.0.1
+                - leave other fields empty
+    5. Configure proxy: leave empty
+    6. Configure Ubuntu archive mirror: leave default value
+    7. Storage configuration: select
+        (x) Use an entire disk
+        [x] Set up this disk as an LVM group // LVM stands for Logical Volume Manager
+    8. Confirm storage configuration and select "continue"
+    9. Setup your profile
+    10. Don't intall OpenSSH server (we will do it manually later on)
+    11. Don't install any additional packages yet
+    12. Wait for the installation to complete and select "Reboot now"
+    13. Done! You can now login using credentials from point 9
+
+===================================
+Basic requirements
+===================================
+
+    1. To list groups of the current user the `id` or `groups` commands can be used.
+
+        In Ubuntu the user created during the installation process belongs to the following groups by default: 
+            username, adm, cdrom, sudo, dip, plugdev, lxd
+
+        To change identity to superuser run: 
+            $ sudo su
+        and enter your password
+
+    2. Network interfaces can be configured in the `/etc/netplan/00-installer-config.yaml` file.
+
+        To display current network interfaces configuration run:
+            $ ip a
+
+        exemplary `/etc/netplan/00-installer-config.yaml` contents
+
+        for network interface configured to acquire network address using DHCP:
+            network:
+              version: 2
+              ethernets:
+                ens33:
+                  dhcp4: true
+
+        for network interface configured to use static IP:
+            network:
+              version: 2
+              ethernets:
+                ens33:
+                  addresses:
+                  - 192.168.3.10/24
+                  gateway4: 192.168.3.1
+                  nameservers:
+                    addresses: [8.8.8.8,8.8.4.4]
+
+        To apply the changes run:
+            $ sudo netplan apply
+
+    3. To create a new user run:
+            $ useradd username
+
+        To add user to a group run:
+            $ usermod -a -G groupname username
+
+        E.g. to add user "athos" to group "users"
+            $ usermod -a -G users athos
+    
+    4. password settings for all users can be inspected in the `/etc/shadow` file
+
+        data for each user is displayed in the format:
+        1:2:3:4:5:6:7:8:
+
+        where:
+            1 -> username
+            2 -> hashed password, if the password field contains an asterisk (*) or exclamation point (!),
+            the user will not be able to login to the system using password authentication.
+            3 -> date of last password change in days since Unix time
+            4 -> minimum number of days required between password changes
+            5 -> maximum number of days the password is valid
+            6 -> number of days before password is to expire that user is warned that his/her password must be changed
+            7 -> number of days after password expires that account is disabled
+            8 -> date of expiration of the account in days since Unix time
+
+        to show account aging information in a more readable way run:
+            $ chage username -l
+
+        to set max time between password change to 30 days run:
+            $ chage username -M 30
+
+    5. first create a new group with
+            $ groupadd operators
+
+        set a password for the group
+            $ gpasswd operators
+
+        To switch temporarily to the `operators` group from one of the created users, 
+        there are a few options that can be used:
+        
+            a)  The `newgrp` command:
+                    $ newgrp operators
+                This command will create a new shell with the operators group as the current group.
+
+                you can run
+                    $ groups
+                to verify temporary group membership
+            
+            b)  The `sg` command:
+                    $ sg operators "command"
+                This command will execute the following command in a new shell
+                with the operators group as the current group.
+
+                e.g.
+                    $ sg operators "touch file.txt"
+                then run
+                    $ ls -l
+                to verify that the new file has the group ownership set to the `operators` group
+
+    6. add the following line in the `/etc/profile` file:
+        export LOGINTIME=$(date -u --rfc-3339='s')
+
+        You could also add a script file in `/etc/profile.d` dir,
+        as the scripts located there are all executed in `/etc/profile`  
+    
+    7. An example of Linux binary that has both statically linked and dynamically linked versions is bash
+    
+        Size of files can be checked with
+            $ du -h [FILE]...
+
+            $ du -h /bin/bash /bin/bash-static
+                1.4M   /bin/bash
+                2.5M   /bin/bash-static
+
+        bash-static takes 1.1M bytes more space on disk
+
+        to find a list of shared libraries for bash run:
+            $ ldd /bin/bash
+
+        which outputs:
+            linux-vdso.so.1 (0x00007ffc9cbb0000)
+            libtinfo.so.6 => /lib/x86_64-linux-gnu/libtinfo.so.6 (0x00007f103bae8000)
+            libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f103b8c0000)
+            /lib64/ld-linux-x86-64.so.2 (0x00007f103bc82000)
+
+        linux-vdso.so.1 is a virtual shared object that doesn't have any physical file on the disk,
+        /lib64/ld-linux-x86-64.so.2 is a dynamic linker
+
+    8. batch command runs specified commands when the system is idle 
+    
+        To install batch run:
+            $ sudo apt install at
+
+        rdate command sets the system's date from a remote host
+
+        To install rdate run:
+            $ sudo apt install rdate
+
+        To sync the system time with external time server (time.nist.gov in this case) run:
+            $ sudo batch
+        and in the displayed prompt 
+            $ sudo rdate time.nist.gov
+
+        to schedule the task press Ctrl + d or Ctrl + c to cancel
+
+    9. to update all packeges in the system run:
+        $ sudo apt update && sudo apt upgrade
+
+        To determine the package from which file was installed:
+            $ dpkg -S file_path    
+
+
+===================================
+Advanced requirements
+===================================
+
+
+
+
+===================================
+Additional requirements
+===================================
