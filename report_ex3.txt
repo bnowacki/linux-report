@@ -296,3 +296,75 @@ Advanced requirements
 ===================================
 Additional requirements
 ===================================
+
+1. Writers group
+    Set a "users" group as a primary group for the users run
+        $ usermod -g users athos 
+        $ usermod -g users porthos 
+        $ usermod -g users aramis
+
+    Create the new group:
+        $ sudo groupadd writers
+    
+    Add "athos" and "porthos" to the "writers" group:
+        $ sudo usermod -aG writers athos
+        $ sudo usermod -aG writers porthos
+
+    Create a directory that the "writers" is supposed to have write permissions to
+        $ mkdir /path/to/directory
+
+    Change the group ownership of the directory to "writers":
+        $ chown :writers /path/to/directory
+
+    Setgid for directory,
+    this makes any new files in that directory to be created with thw ownership of the group of this directory
+        $ chmod g+s /path/to/directory
+
+    The umask setting controls the default permissions for newly created files and directories,
+    and it is not directly related to granting group write permissions on an existing directory.
+
+    But to set default umask for all users add the following line to the `/etc/profile` file
+        umask 002
+
+2. autolog
+    $ sudo apt install autolog
+
+    edit the `/etc/autolog.conf` file
+    find the line starting with `group=users` and set it to
+        group=users     idle=5 grace=5
+    
+    or if it is to be applied to ALL user add the following line:
+        name=.*         idle=5 grace=5
+    
+    where idle is time in minutes after which the user will be logged off
+    and grace is time in seconds added to the idle time in which the following notification is presented to the user:
+
+        .----------------------------------------------.
+        |     aramis: You've been idle for   5 min.    |
+        |        You'll be logged off in   5 sec       |
+        |             unless you hit a key.            |
+        `----------------------------------------------'
+
+3. limit disk space usage
+    $ sudo apt install quota
+
+    edit `/etc/fstab` file, add usrquota to the filesystem options
+    it should look similar to this:
+    /dev/disk/by-id/dm-uuid-LVM-t9GoO2dfSD8aDlY0qLELuFHsYO798S81zS1O1yVIqCXWBQY7iQkLZHuAb4caodaf / ext4 defaults,usrquota 0 1
+
+    run:
+        $ sudo quotacheck -cum /
+        $ sudo quotaon -v /
+
+    for each user:
+        $ sudo edquota -u aramis
+    
+    and set the blocks and inode limits to the desired size
+    blocks mean disk space in KB
+    inodes mean the number of actual files
+
+    to generate a report of current disk usage and limits run
+        $ sudo repquota -au
+
+    if a user tries to exceed the cofigured quota the following message will be displayed:
+        touch: cannot touch 'file': Disk quota exceeded
