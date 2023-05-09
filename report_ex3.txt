@@ -19,12 +19,7 @@ Installation steps:
     2. Select the preferred language and keyboard layout
     3. For the base of the installation select: Ubuntu Server
     4. Network configuration:
-        4.1. Leave the NAT network adapter unchanged
-        4.2. For the LAN network adapter:
-                - set IPv4 method to manual
-                - set Subnet field to 10.0.0.0/24
-                - set Address field 10.0.0.1
-                - leave other fields empty
+        set the network interface to obtain ip address automatically via DHCP
     5. Configure proxy: leave empty
     6. Configure Ubuntu archive mirror: leave default value
     7. Storage configuration: select
@@ -44,7 +39,7 @@ Basic requirements
     1. To list groups of the current user the `id` or `groups` commands can be used.
 
         In Ubuntu the user created during the installation process belongs to the following groups by default: 
-            username, adm, cdrom, sudo, dip, plugdev, lxd
+            [username], adm, cdrom, sudo, dip, plugdev, lxd
 
         To change identity to superuser run: 
             $ sudo su
@@ -70,10 +65,10 @@ Basic requirements
               ethernets:
                 ens33:
                   addresses:
-                  - 192.168.3.10/24
-                  gateway4: 192.168.3.1
+                  - 192.168.3.10/24 # to view current address run $ ip a
+                  gateway4: 192.168.3.1 # to check default gateway run $ ip r
                   nameservers:
-                    addresses: [8.8.8.8,8.8.4.4]
+                    addresses: [8.8.8.8,8.8.4.4] # Google DNS servers
 
         To apply the changes run:
             $ sudo netplan apply
@@ -82,10 +77,10 @@ Basic requirements
             $ useradd username
 
         To add user to a group run:
-            $ usermod -a -G groupname username
+            $ usermod -aG groupname username
 
         E.g. to add user "athos" to group "users"
-            $ usermod -a -G users athos
+            $ usermod -aG users athos
     
     4. password settings for all users can be inspected in the `/etc/shadow` file
 
@@ -123,8 +118,8 @@ Basic requirements
                 This command will create a new shell with the operators group as the current group.
 
                 you can run
-                    $ groups
-                to verify temporary group membership
+                    $ id
+                to verify that gid is set to the group invoked by newgrp
             
             b)  The `sg` command:
                     $ sg operators "command"
@@ -137,7 +132,8 @@ Basic requirements
                     $ ls -l
                 to verify that the new file has the group ownership set to the `operators` group
 
-    6. add the following line in the `/etc/profile` file:
+    6. LOGINTIME environment variable
+        add the following line in the `/etc/profile` file:
         export LOGINTIME=$(date -u --rfc-3339='s')
 
         You could also add a script file in `/etc/profile.d` dir,
@@ -166,7 +162,7 @@ Basic requirements
         linux-vdso.so.1 is a virtual shared object that doesn't have any physical file on the disk,
         /lib64/ld-linux-x86-64.so.2 is a dynamic linker
 
-    8. batch command runs specified commands when the system is idle 
+    8. batch command runs specified commands when the system is idle, it is a part of the `at` package
     
         To install batch run:
             $ sudo apt install at
@@ -176,10 +172,11 @@ Basic requirements
         To install rdate run:
             $ sudo apt install rdate
 
-        To sync the system time with external time server (time.nist.gov in this case) run:
+        To sync the system time with external time server (tempus1.gum.gov.pl in this case)
+        when the system is idle run:
             $ sudo batch
         and in the displayed prompt 
-            $ sudo rdate time.nist.gov
+            $ sudo rdate tempus1.gum.gov.pl
 
         to schedule the task press Ctrl + d or Ctrl + c to cancel
 
@@ -212,7 +209,7 @@ Advanced requirements
 
     To generate public/private key pair you can use the following command:
         $ ssh-keygen
-    by default it will use `rsa` algorithm
+    by default it will use the rsa algorithm
     Run the above command on a machine that you want to login from in ~/.ssh folder,
     then copy the generated public key to /root/.ssh/authorized_keys file on the configured server.
 
@@ -224,12 +221,15 @@ Advanced requirements
     but it can be changed by modifying `/etc/ssh/sshd_config` file
     find the line:
         #PasswordAuthentication yes
-    uncomment it and choose `yes` or `no` option
+    uncomment it and choose yes/no to enable/disable password authentication
 
 5. Configure systemd targets
     Because there are no runlevels in Ubuntu systemd targets have to be used.
     One way of meeting the task's requirements is to run the following set of commands:
-        
+
+        set multi-user.target as the default target (for some odd reason it's graphical.target by default)
+            $ systemctl set-default multi-user.target
+            $ reboot
         cd into directory with systemd unit configuration files
             $ cd /usr/lib/systemd/system
         copy multi-user.target to "inherit" it's configuration
@@ -251,7 +251,7 @@ Advanced requirements
         GRUB_TIMEOUT_STYLE=hidden
         GRUB_TIMEOUT=0
     And change it to:
-        GRUB_TIMEOUT_STYLE=hidden
+        GRUB_TIMEOUT_STYLE=menu
         GRUB_TIMEOUT=10
     here 10 is the number of seconds, before the system boots with the default option
 
@@ -286,7 +286,7 @@ Advanced requirements
 
     pay attention to the linux ... line
         `systemd.unit=multi-user-ssh.target`
-    fragment specifies with which systemd target the system will boot
+    fragment specifies with which systemd target the system will boot with
 
     to finalize the changes run
         $ sudo update-grub
