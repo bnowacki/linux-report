@@ -176,7 +176,7 @@ Basic requirements
         when the system is idle run:
             $ sudo batch
         and in the displayed prompt 
-            $ sudo rdate tempus1.gum.gov.pl
+            $ sudo rdate -n tempus1.gum.gov.pl
 
         to schedule the task press Ctrl + d or Ctrl + c to cancel
 
@@ -298,7 +298,7 @@ Additional requirements
 ===================================
 
 1. Writers group
-    Set a "users" group as a primary group for the users run
+    Set the "users" group as a primary group for the users run
         $ usermod -g users athos 
         $ usermod -g users porthos 
         $ usermod -g users aramis
@@ -316,9 +316,9 @@ Additional requirements
     Change the group ownership of the directory to "writers":
         $ chown :writers /path/to/directory
 
-    Setgid for directory,
-    this makes any new files in that directory to be created with thw ownership of the group of this directory
-        $ chmod g+s /path/to/directory
+    Setgid and write permissions to group members for the directory,
+    this makes any new files in that directory to be created with the ownership of the group of this directory
+        $ chmod g+ws /path/to/directory
 
     The umask setting controls the default permissions for newly created files and directories,
     and it is not directly related to granting group write permissions on an existing directory.
@@ -346,25 +346,34 @@ Additional requirements
         `----------------------------------------------'
 
 3. limit disk space usage
-    $ sudo apt install quota
+    $ apt install quota
 
     edit `/etc/fstab` file, add usrquota to the filesystem options
     it should look similar to this:
+    
     /dev/disk/by-id/dm-uuid-LVM-t9GoO2dfSD8aDlY0qLELuFHsYO798S81zS1O1yVIqCXWBQY7iQkLZHuAb4caodaf / ext4 defaults,usrquota 0 1
 
     run:
-        $ sudo quotacheck -cum /
-        $ sudo quotaon -v /
+        $ reboot
+        $ quotacheck -cum /
+        $ quotaon -v /
 
     for each user:
-        $ sudo edquota -u aramis
+        $ edquota -u aramis
     
     and set the blocks and inode limits to the desired size
     blocks mean disk space in KB
     inodes mean the number of actual files
+    a user can exceed the soft limit for a certain number of days,
+    but by no means can a user exceed the hard limit
+    exemplary file, with the hard limit on blocks set to 1GB, could look like this:
+
+    Disk quotas for user aramis (uid 1003):
+      Filesystem                            blocks       soft       hard     inodes     soft     hard
+      /dev/mapper/ubuntu--vg-ubuntu--lv          0          0    1048576          0        0        0
 
     to generate a report of current disk usage and limits run
-        $ sudo repquota -au
+        $ repquota -au
 
     if a user tries to exceed the cofigured quota the following message will be displayed:
         touch: cannot touch 'file': Disk quota exceeded
