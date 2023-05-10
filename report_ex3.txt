@@ -6,8 +6,8 @@ Exercise 3 - Linux installation
 ===================================
 
 Authors:
-    - Izabela Wochna
-    - Stanisław Marciniak
+    - Izabela Wochna 247046
+    - Stanisław Marciniak 247032
     - Bartosz Nowacki 247036
 
 ===================================
@@ -139,7 +139,10 @@ Basic requirements
         You could also add a script file in `/etc/profile.d` dir,
         as the scripts located there are all executed in `/etc/profile`  
     
-    7. An example of Linux binary that has both statically linked and dynamically linked versions is bash
+    7. An example of Linux binary that has both statically linked and dynamically linked versions is bash,
+    however only the dynamically linked version is installed by default.
+        To install statically linked bash run:
+            $ apt install bash-static
     
         Size of files can be checked with
             $ du -h [FILE]...
@@ -350,7 +353,7 @@ Additional requirements
 
     edit `/etc/fstab` file, add usrquota to the filesystem options
     it should look similar to this:
-    
+
     /dev/disk/by-id/dm-uuid-LVM-t9GoO2dfSD8aDlY0qLELuFHsYO798S81zS1O1yVIqCXWBQY7iQkLZHuAb4caodaf / ext4 defaults,usrquota 0 1
 
     run:
