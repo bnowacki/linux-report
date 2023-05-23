@@ -259,7 +259,7 @@ Advanced requirements
     here 10 is the number of seconds, before the system boots with the default option
 
     next modify the `/etc/grub.d/40_custom` file (or create it if it doesn't exist)
-    the constents of the file should be as follows:
+    the constents of the file should look similar to:
     
     ```
         #!/bin/sh
@@ -286,6 +286,9 @@ Advanced requirements
                 initrd  /initrd.img-5.15.0-71-generic
         }
     ```
+
+    NOTE: you can't just copy & paste what's above as there are some unique ids present in the code. 
+    To obtain yours you can copy the corresponding fragment from `/boot/grub/grub.cfg`
 
     pay attention to the linux ... line
         `systemd.unit=multi-user-ssh.target`
