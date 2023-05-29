@@ -1,5 +1,7 @@
-# linux-report
-Linux report for sysops!
+# Operating Systems exercises
+
+Exercises for sysops!
+
 ```
     .--.
    |o_o |
