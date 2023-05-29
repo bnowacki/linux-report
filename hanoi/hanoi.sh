@@ -11,6 +11,7 @@ display_help() {
     echo "Options:"
     echo "  -H number   Height of the first tower, must satisfy the inequality: 1 < height < 10. 6 by default."
     echo "  -d string   Directory for temporary files, current directory by default."
+    echo "  -s          Spectator mode."
     echo
     echo "  -v          Print the version of the program and exit."
     echo "  -h          Print this help and exit."
@@ -20,9 +21,11 @@ display_help() {
 height=6
 # Directory for temporary files
 dir="."
+# Other users can spectate the game
+spectator=false
 
 # Process command-line arguments
-while getopts "H:d: :v :h" opt; do
+while getopts "H:d: :v :h :s" opt; do
     case $opt in
         v)
             echo $version
@@ -31,6 +34,9 @@ while getopts "H:d: :v :h" opt; do
         h)
             display_help
             exit
+        ;;
+        s)
+            spectator=true
         ;;
         H)
             # Check if the input is between 1 and 10
@@ -65,23 +71,90 @@ repeat(){
 for ((i=height; i>0; i--))
 do
     touch "${dir}/tower1/level${i}"
-    printf ' %.0s' $(seq $((($height-$i)+1))) >> "${dir}/tower1/level${i}"
+    printf ' %.0s' $(seq $(($height-$i+1))) >> "${dir}/tower1/level${i}"
     printf '#%.0s' $(seq $(($i*2+1))) >> "${dir}/tower1/level${i}"
+    printf ' %.0s' $(seq $(($height-$i+1))) >> "${dir}/tower1/level${i}"
     printf '\n' >> "${dir}/tower1/level${i}"
     sleep 0.1
 done
 
+empty_pole=$(printf ' %.0s' $(seq $(($height))))
+empty_pole="${empty_pole} |"
+empty_pole="${empty_pole} $(printf ' %.0s' $(seq $(($height))))"
+
 render() {
+    tower1_files=($(ls -txw0 "${dir}/tower1"))
+    tower2_files=($(ls -txw0 "${dir}/tower2"))
+    tower3_files=($(ls -txw0 "${dir}/tower3"))
     
-    for ((i=1; i<=height+1; i++))
+    towers="${empty_pole}${empty_pole}${empty_pole}\n"
+    for ((i=height; i>0; i--))
     do
-        echo "    |      |      |"
+        
+        # 1st tower
+        disk=$empty_pole
+        if [ ${#tower1_files[*]} -ge $i ]; then
+            disk=$(cat "${dir}/tower1/${tower1_files[-$i]}")
+        fi
+        towers="${towers}${disk}"
+        
+        # 2nd tower
+        disk=$empty_pole
+        if [ ${#tower2_files[*]} -ge $i ]; then
+            disk=$(cat "${dir}/tower2/${tower2_files[-$i]}")
+        fi
+        towers="${towers}${disk}"
+        
+        # 3rd tower
+        disk=$empty_pole
+        if [ ${#tower3_files[*]} -ge $i ]; then
+            disk=$(cat "${dir}/tower3/${tower3_files[-$i]}")
+        fi
+        towers="${towers}${disk}"
+        
+        towers="${towers}\n"
     done
     
-    echo " ~~~~~~~~~~~~~~~~~~~~~~~ "
-    echo "tower1: $(ls -txw0 "${dir}/tower1")"
-    echo "tower2: $(ls -txw0 "${dir}/tower2")"
-    echo "tower3: $(ls -txw0 "${dir}/tower3")"
+    printf "$towers"
+    printf '~%.0s' $(seq $((($height*2+3)*3)))
+    echo
+    echo "tower1: ${tower1_files[*]}"
+    echo "tower2: ${tower2_files[*]}"
+    echo "tower3: ${tower3_files[*]}"
 }
 
-render
+while true
+do
+    clear
+    render
+    
+    if [ "$spectator" = true ]; then
+        sleep 0.5
+        continue
+    fi
+    
+    read from to
+    if ! ([[ $from =~ ^[1-3]$ ]] && [[ $to =~ ^[1-3]$ ]]); then
+        echo "Invalid move"
+        sleep 1
+        continue
+    fi
+    
+    level=$(ls -txw0 "${dir}/tower${from}" | awk -F" " '{ print $1 }')
+    top_in_dest=$(ls -txw0 "${dir}/tower${to}" | awk -F" " '{ print $1 }')
+    if [ -z $top_in_dest ]; then
+        top_in_dest=$((height + 1))
+    fi
+    
+    if [ -z $level ] || [ ${level:0-1} -gt ${top_in_dest:0-1} ]; then
+        echo "Invalid move"
+        sleep 1
+        continue
+    fi
+    
+    file="${dir}/tower${from}/${level}"
+    dest="${dir}/tower${to}/${level}"
+    
+    mv $file $dest
+    touch $dest
+done
