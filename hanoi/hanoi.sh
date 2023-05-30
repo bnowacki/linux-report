@@ -55,28 +55,26 @@ while getopts "H:d: :v :h :s" opt; do
     esac
 done
 
-# Recreate temp
-rm -rf "${dir}/tower1"
-rm -rf "${dir}/tower2"
-rm -rf "${dir}/tower3"
+# count height if in spectator mode
+if [ "$spectator" = true ]; then
+    height=$(find tower1 tower2 tower3 -type f | wc -l)
+fi
 
-mkdir "${dir}/tower1"
-mkdir "${dir}/tower2"
-mkdir "${dir}/tower3"
-
-repeat(){
-    for i in {1..90}; do echo -n "$1"; done
-}
-
-for ((i=height; i>0; i--))
-do
-    touch "${dir}/tower1/level${i}"
-    printf ' %.0s' $(seq $(($height-$i+1))) >> "${dir}/tower1/level${i}"
-    printf '#%.0s' $(seq $(($i*2+1))) >> "${dir}/tower1/level${i}"
-    printf ' %.0s' $(seq $(($height-$i+1))) >> "${dir}/tower1/level${i}"
-    printf '\n' >> "${dir}/tower1/level${i}"
-    sleep 0.1
-done
+# Recreate temp files if in player mode
+if [ "$spectator" = false ]; then
+    rm -rf "${dir}/tower1" "${dir}/tower2" "${dir}/tower3"
+    mkdir "${dir}/tower1" "${dir}/tower2" "${dir}/tower3"
+    
+    for ((i=height; i>0; i--))
+    do
+        touch "${dir}/tower1/level${i}"
+        printf ' %.0s' $(seq $(($height-$i+1))) >> "${dir}/tower1/level${i}"
+        printf '#%.0s' $(seq $(($i*2+1))) >> "${dir}/tower1/level${i}"
+        printf ' %.0s' $(seq $(($height-$i+1))) >> "${dir}/tower1/level${i}"
+        printf '\n' >> "${dir}/tower1/level${i}"
+        sleep 0.1
+    done
+fi
 
 empty_pole=$(printf ' %.0s' $(seq $(($height))))
 empty_pole="${empty_pole} |"
@@ -135,18 +133,16 @@ do
     
     read from to
     if ! ([[ $from =~ ^[1-3]$ ]] && [[ $to =~ ^[1-3]$ ]]); then
-        echo "Invalid move"
+        echo "Invalid move, to move a disk type:"
+        echo "from_tower_number dest_tower_number"
         sleep 1
         continue
     fi
     
     level=$(ls -txw0 "${dir}/tower${from}" | awk -F" " '{ print $1 }')
     top_in_dest=$(ls -txw0 "${dir}/tower${to}" | awk -F" " '{ print $1 }')
-    if [ -z $top_in_dest ]; then
-        top_in_dest=$((height + 1))
-    fi
     
-    if [ -z $level ] || [ ${level:0-1} -gt ${top_in_dest:0-1} ]; then
+    if [ -z $level ] || ([ -n $top_in_dest ] && [ ${level: -1} -gt ${top_in_dest: -1} ]); then
         echo "Invalid move"
         sleep 1
         continue
