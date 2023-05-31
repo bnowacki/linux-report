@@ -86,9 +86,9 @@ gen_disk(){
 render() {
     # get level files as arrays
     # should be a 2d array, but they aren't well implemented in bash
-    tower1_files=($(ls -txw0 "${dir}/tower1"))
-    tower2_files=($(ls -txw0 "${dir}/tower2"))
-    tower3_files=($(ls -txw0 "${dir}/tower3"))
+    tower1_files=($(ls -tx "${dir}/tower1"))
+    tower2_files=($(ls -tx "${dir}/tower2"))
+    tower3_files=($(ls -tx "${dir}/tower3"))
     
     towers="${empty_pole}${empty_pole}${empty_pole}\n"
     for ((i=height; i>0; i--))
@@ -144,9 +144,12 @@ do
         continue
     fi
     
-    level=$(ls -txw0 "${dir}/tower${from}" | awk -F" " '{ print $1 }')
+    # -t            sort by modification time
+    # -x            list entries by lines instead of by columns
+    # awk -F" " ... separate input by spaces and print the first entry
+    level=$(ls -tx "${dir}/tower${from}" | awk -F" " '{ print $1 }')
     # top disk on the destination tower has to be larger than the top disk in source tower
-    top_in_dest=$(ls -txw0 "${dir}/tower${to}" | awk -F" " '{ print $1 }')
+    top_in_dest=$(ls -tx "${dir}/tower${to}" | awk -F" " '{ print $1 }')
     
     # if no level file found or top disk in dest exists and is smaller than source disk
     if [ -z $level ] || ([ -n $top_in_dest ] && [ ${level: -1} -gt ${top_in_dest: -1} ]); then
@@ -159,5 +162,5 @@ do
     dest="${dir}/tower${to}/${level}"
     
     mv $file $dest
-    touch $dest # mv doesn't refresh files creation time, therefore we touch it!
+    touch $dest # mv doesn't refresh file's modification time, therefore we touch it!
 done
