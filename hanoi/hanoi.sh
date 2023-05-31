@@ -3,7 +3,7 @@
 version="v1.0.0"
 
 display_help() {
-    echo "Usage: $0 [-v|h|H|d]"
+    echo "Usage: $0 [-v|h|H|d|s]"
     echo
     echo "Play the Tower of Hanoi game in your terminal!"
     echo "Program takes as an input height of the first tower and a directory in which the game will take place."
@@ -47,6 +47,7 @@ while getopts "H:d: :v :h :s" opt; do
             height=$OPTARG
         ;;
         d) dir=$OPTARG;;
+        # catch invalid options
         \?)
             echo "Invalid option: -$OPTARG" >&2
             display_help
@@ -55,7 +56,7 @@ while getopts "H:d: :v :h :s" opt; do
     esac
 done
 
-# count height if in spectator mode
+# count height of the tower if in spectator mode
 if [ "$spectator" = true ]; then
     height=$(find tower1 tower2 tower3 -type f | wc -l)
 fi
@@ -65,6 +66,7 @@ if [ "$spectator" = false ]; then
     rm -rf "${dir}/tower1" "${dir}/tower2" "${dir}/tower3"
     mkdir "${dir}/tower1" "${dir}/tower2" "${dir}/tower3"
     
+    # generate level files for tower1
     for ((i=height; i>0; i--))
     do
         touch "${dir}/tower1/level${i}"
@@ -72,17 +74,19 @@ if [ "$spectator" = false ]; then
     done
 fi
 
-# empty_pole is a | padded with sapces on both sides
+# empty_pole is a | padded with spaces on both sides
 empty_pole="$(printf ' %.0s' $(seq $(($height)))) | $(printf ' %.0s' $(seq $(($height))))"
 
+# Generate disks from #'s
 gen_disk(){
-    local size="${1: -1}" #last char of file name is disk size
+    local size="${1: -1}" #last char of level file name is disk size
     local disk=$(printf ' %.0s' $(seq $(($height-$size+1)))) # padding left
     local disk="${disk}$(printf '#%.0s' $(seq $(($size*2+1))))" # hashtags
     local disk="${disk}$(printf ' %.0s' $(seq $(($height-$size+1))))" # padding right
     printf "$disk"
 }
 
+# render game view
 render() {
     # get level files as arrays
     # should be a 2d array, but they aren't well implemented in bash
@@ -91,6 +95,7 @@ render() {
     tower3_files=($(ls -tx "${dir}/tower3"))
     
     towers="${empty_pole}${empty_pole}${empty_pole}\n"
+    # generate tower from top to bottom
     for ((i=height; i>0; i--))
     do
         # 1st tower
@@ -125,6 +130,7 @@ render() {
     echo "tower3: ${tower3_files[*]}"
 }
 
+# main game loop
 while true
 do
     clear
@@ -136,6 +142,7 @@ do
         continue
     fi
     
+    #  get valid input from user
     read from to
     if ! ([[ $from =~ ^[1-3]$ ]] && [[ $to =~ ^[1-3]$ ]]); then
         echo "Invalid move, to move a disk type:"
@@ -161,6 +168,7 @@ do
     file="${dir}/tower${from}/${level}"
     dest="${dir}/tower${to}/${level}"
     
+    # move disks
     mv $file $dest
     touch $dest # mv doesn't refresh file's modification time, therefore we touch it!
 done
