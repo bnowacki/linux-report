@@ -68,19 +68,24 @@ if [ "$spectator" = false ]; then
     for ((i=height; i>0; i--))
     do
         touch "${dir}/tower1/level${i}"
-        printf ' %.0s' $(seq $(($height-$i+1))) >> "${dir}/tower1/level${i}"
-        printf '#%.0s' $(seq $(($i*2+1))) >> "${dir}/tower1/level${i}"
-        printf ' %.0s' $(seq $(($height-$i+1))) >> "${dir}/tower1/level${i}"
-        printf '\n' >> "${dir}/tower1/level${i}"
-        sleep 0.1
+        sleep 0.1 # sleep to ensure files have proper creation times, bcs we use it to determine disk order
     done
 fi
 
-empty_pole=$(printf ' %.0s' $(seq $(($height))))
-empty_pole="${empty_pole} |"
-empty_pole="${empty_pole} $(printf ' %.0s' $(seq $(($height))))"
+# empty_pole is a | padded with sapces on both sides
+empty_pole="$(printf ' %.0s' $(seq $(($height)))) | $(printf ' %.0s' $(seq $(($height))))"
+
+gen_disk(){
+    local size="${1: -1}" #last char of file name is disk size
+    local disk=$(printf ' %.0s' $(seq $(($height-$size+1)))) # padding left
+    local disk="${disk}$(printf '#%.0s' $(seq $(($size*2+1))))" # hashtags
+    local disk="${disk}$(printf ' %.0s' $(seq $(($height-$size+1))))" # padding right
+    printf "$disk"
+}
 
 render() {
+    # get level files as arrays
+    # should be a 2d array, but they aren't well implemented in bash
     tower1_files=($(ls -txw0 "${dir}/tower1"))
     tower2_files=($(ls -txw0 "${dir}/tower2"))
     tower3_files=($(ls -txw0 "${dir}/tower3"))
@@ -88,25 +93,24 @@ render() {
     towers="${empty_pole}${empty_pole}${empty_pole}\n"
     for ((i=height; i>0; i--))
     do
-        
         # 1st tower
         disk=$empty_pole
         if [ ${#tower1_files[*]} -ge $i ]; then
-            disk=$(cat "${dir}/tower1/${tower1_files[-$i]}")
+            disk=$(gen_disk ${tower1_files[-$i]})
         fi
         towers="${towers}${disk}"
         
         # 2nd tower
         disk=$empty_pole
         if [ ${#tower2_files[*]} -ge $i ]; then
-            disk=$(cat "${dir}/tower2/${tower2_files[-$i]}")
+            disk=$(gen_disk ${tower2_files[-$i]})
         fi
         towers="${towers}${disk}"
         
         # 3rd tower
         disk=$empty_pole
         if [ ${#tower3_files[*]} -ge $i ]; then
-            disk=$(cat "${dir}/tower3/${tower3_files[-$i]}")
+            disk=$(gen_disk ${tower3_files[-$i]})
         fi
         towers="${towers}${disk}"
         
@@ -126,6 +130,7 @@ do
     clear
     render
     
+    # just refresh screen for spectators
     if [ "$spectator" = true ]; then
         sleep 0.5
         continue
@@ -140,8 +145,10 @@ do
     fi
     
     level=$(ls -txw0 "${dir}/tower${from}" | awk -F" " '{ print $1 }')
+    # top disk on the destination tower has to be larger than the top disk in source tower
     top_in_dest=$(ls -txw0 "${dir}/tower${to}" | awk -F" " '{ print $1 }')
     
+    # if no level file found or top disk in dest exists and is smaller than source disk
     if [ -z $level ] || ([ -n $top_in_dest ] && [ ${level: -1} -gt ${top_in_dest: -1} ]); then
         echo "Invalid move"
         sleep 1
@@ -152,5 +159,5 @@ do
     dest="${dir}/tower${to}/${level}"
     
     mv $file $dest
-    touch $dest
+    touch $dest # mv doesn't refresh files creation time, therefore we touch it!
 done
