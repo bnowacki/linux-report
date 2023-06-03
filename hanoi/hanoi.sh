@@ -25,7 +25,7 @@ dir="."
 spectator=false
 
 # Process command-line arguments
-while getopts "H:d: :v :h :s" opt; do
+while getopts "H: d: :v :h :s" opt; do
     case $opt in
         v)
             echo $version
@@ -58,7 +58,7 @@ done
 
 # count height of the tower if in spectator mode
 if [ "$spectator" = true ]; then
-    height=$(find tower1 tower2 tower3 -type f | wc -l)
+    height=$(find ${dir}/tower1 ${dir}/tower2 ${dir}/tower3 -type f | wc -l)
 fi
 
 # Recreate temp files if in player mode
