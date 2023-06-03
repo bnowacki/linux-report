@@ -3,7 +3,7 @@
 version="v1.0.0"
 
 display_help() {
-    echo "Usage: $0 [-v|h|H|d]"
+    echo "Usage: $0 [-v|h|H|d|a]"
     echo
     echo "Play the Tower of Hanoi game in your terminal!"
     echo "Program takes as an input height of the first tower and a directory in which the game will take place."
@@ -12,20 +12,23 @@ display_help() {
     echo "  -H number   Height of the first tower, must satisfy the inequality: 1 < height < 10. 6 by default."
     echo "  -d string   Directory for temporary files, current directory by default."
     echo "  -s          Spectator mode."
+    echo "  -a          Autosolve mode."
     echo
     echo "  -v          Print the version of the program and exit."
     echo "  -h          Print this help and exit."
 }
 
 # Height of the first tower
-height=6
+height=3
 # Directory for temporary files
 dir="."
 # Other users can spectate the game
 spectator=false
+# Autosolve mode
+autosolve=false
 
 # Process command-line arguments
-while getopts "H:d: :v :h :s" opt; do
+while getopts "H:d: :v :h :s :a" opt; do
     case $opt in
         v)
             echo $version
@@ -37,6 +40,9 @@ while getopts "H:d: :v :h :s" opt; do
         ;;
         s)
             spectator=true
+        ;;
+        a)
+            autosolve=true
         ;;
         H)
             # Check if the input is between 1 and 10
@@ -63,7 +69,7 @@ fi
 # Recreate temp files if in player mode
 if [ "$spectator" = false ]; then
     rm -rf "${dir}/tower1" "${dir}/tower2" "${dir}/tower3"
-    mkdir "${dir}/tower1" "${dir}/tower2" "${dir}/tower3"
+    mkdir -p "${dir}/tower1" "${dir}/tower2" "${dir}/tower3"
     
     for ((i=height; i>0; i--))
     do
@@ -125,6 +131,42 @@ render() {
     echo "tower3: ${tower3_files[*]}"
 }
 
+move_disk() {
+    local from="$1"
+    local to="$2"
+
+    level=$(ls -tx "${dir}/tower${from}" | awk -F" " '{ print $1 }')
+
+    file="${dir}/tower${from}/${level}"
+    dest="${dir}/tower${to}/${level}"
+    
+    mv $file $dest
+}
+
+hanoi() {
+    sleep 1
+
+    local n="$1"
+    local from="$2"
+    local to="$3"
+    local helpPole="$4"
+
+    if (( n == 1 )); then
+        move_disk "$from" "$to"
+        clear
+        render
+        sleep 0.5
+        return
+    fi
+
+    hanoi "$((n - 1))" "$from" "$helpPole" "$to"
+    move_disk "$from" "$to"
+    clear
+    render
+    sleep 0.5
+    hanoi "$((n - 1))" "$helpPole" "$to" "$from"
+}
+
 while true
 do
     clear
@@ -134,6 +176,14 @@ do
     if [ "$spectator" = true ]; then
         sleep 0.5
         continue
+    fi
+
+    if [ "$autosolve" = true ]; then
+        clear
+        render
+        hanoi "$height" 1 3 2
+        echo "Tower of Hanoi solved!"
+        exit
     fi
     
     read from to
@@ -157,10 +207,8 @@ do
         sleep 1
         continue
     fi
+
+    move_disk "$from" "$to"
     
-    file="${dir}/tower${from}/${level}"
-    dest="${dir}/tower${to}/${level}"
-    
-    mv $file $dest
     touch $dest # mv doesn't refresh file's modification time, therefore we touch it!
 done
