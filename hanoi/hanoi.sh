@@ -210,7 +210,7 @@ while true; do
     fi
 
     # if number of files in tower3 dir >= height the game is finished
-    if [ $(find tower3 -type f | wc -l) -ge $height ]; then
+    if [ $(find ${dir}/tower3 -type f | wc -l) -ge $height ]; then
         render
         echo "Congratulations! You solved the Tower of Hanoi in ${moves} moves!"
         exit
