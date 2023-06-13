@@ -23,7 +23,7 @@ tmp_class_register="tmp-class-register"
 
 # clear temp class register if the date changed
 last_date_in_tmp_file="$(tail -n 1 $tmp_class_register | awk -F" : " '{ print $NF }')"
-if [ "$last_date_in_tmp_file" = "$(date +%D)" ]; then
+if [ "$last_date_in_tmp_file" != "$(date +%D)" ]; then
   echo -n '' >$tmp_class_register
 fi
 
