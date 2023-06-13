@@ -42,28 +42,30 @@ echo "$students" | while read student_line; do
   # loop through all students that actually logged in during the last hour
   echo "$last_logged" | while read log_line; do
     user=$(echo "$log_line" | awk -F":" '{ print $1 }')
+    if [ "$student" != "$user" ]; then
+      continue
+    fi
+
     tty=$(echo "$log_line" | awk -F":" '{ print $2 }')
 
-    if [ "$student" = "$user" ]; then
-      line_in_register="$(
-        echo "$student_line" |
-          awk "
-            BEGIN { 
-              FS=\" : \" 
-              OFS=\" : \" 
-            }
-            { print \$1, \$2, \$3, \$4, \"$tty\", \"$(date +%D)\" }
-          "
-      )"
+    line_in_register="$(
+      echo "$student_line" |
+        awk "
+          BEGIN { 
+            FS=\" : \" 
+            OFS=\" : \" 
+          }
+          { print \$1, \$2, \$3, \$4, \"$tty\", \"$(date +%D)\" }
+        "
+    )"
 
-      # if student already has marked attendance for current date break the loop
-      if grep -q "$line_in_register" "$tmp_class_register"; then
-        break
-      fi
-      # register student's attendance
-      echo "$line_in_register" >>$tmp_class_register
-      echo "$line_in_register" >>$class_register
+    # if student already has marked attendance for current date break the loop
+    if grep -q "$line_in_register" "$tmp_class_register"; then
       break
     fi
+    # register student's attendance
+    echo "$line_in_register" >>$tmp_class_register
+    echo "$line_in_register" >>$class_register
+    break
   done
 done
