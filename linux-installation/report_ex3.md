@@ -1,47 +1,30 @@
 ===================================
 
-Operating Systems IT 2022/2023
-Exercise 3 - Linux installation
+# Operating Systems IT 2022/2023
 
-===================================
+## Exercise 3 - Linux installation
 
-Authors:
-    - Izabela Wochna 247046
-    - Stanisław Marciniak 247032
-    - Bartosz Nowacki 247036
+### Authors:
 
-===================================
+- Izabela Wochna _247046_
+- Stanisław Marciniak _247032_
+- Bartosz Nowacki _247036_
 
-Linux distribution and version: Ubuntu Server 22.04.2
+## Linux distribution and version: Ubuntu Server 22.04.2
 
-Installation steps:
-    1. On the initial screen pick the "Try or Install Ubuntu Server" option
-    2. Select the preferred language and keyboard layout
-    3. For the base of the installation select: Ubuntu Server
-    4. Network configuration:
-        set the network interface to obtain ip address automatically via DHCP
-    5. Configure proxy: leave empty
-    6. Configure Ubuntu archive mirror: leave default value
-    7. Storage configuration: select
-        (x) Use an entire disk
-        [x] Set up this disk as an LVM group // LVM stands for Logical Volume Manager
-    8. Confirm storage configuration and select "continue"
-    9. Setup your profile
-    10. Don't intall OpenSSH server (we will do it manually later on)
-    11. Don't install any additional packages yet
-    12. Wait for the installation to complete and select "Reboot now"
-    13. Done! You can now login using credentials from point 9
+Installation steps: 1. On the initial screen pick the "Try or Install Ubuntu Server" option 2. Select the preferred language and keyboard layout 3. For the base of the installation select: Ubuntu Server 4. Network configuration:
+set the network interface to obtain ip address automatically via DHCP 5. Configure proxy: leave empty 6. Configure Ubuntu archive mirror: leave default value 7. Storage configuration: select
+(x) Use an entire disk
+[x] Set up this disk as an LVM group // LVM stands for Logical Volume Manager 8. Confirm storage configuration and select "continue" 9. Setup your profile 10. Don't intall OpenSSH server (we will do it manually later on) 11. Don't install any additional packages yet 12. Wait for the installation to complete and select "Reboot now" 13. Done! You can now login using credentials from point 9
 
-===================================
-Basic requirements
-===================================
+## Basic requirements
 
     1. To list groups of the current user the `id` or `groups` commands can be used.
 
-        In Ubuntu the user created during the installation process belongs to the following groups by default: 
+        In Ubuntu the user created during the installation process belongs to the following groups by default:
             [username], adm, cdrom, sudo, dip, plugdev, lxd
 
-        To change identity to superuser run: 
+        To change identity to superuser run:
             $ sudo su
         and enter your password
 
@@ -81,7 +64,7 @@ Basic requirements
 
         E.g. to add user "athos" to group "users"
             $ usermod -aG users athos
-    
+
     4. password settings for all users can be inspected in the `/etc/shadow` file
 
         data for each user is displayed in the format:
@@ -110,9 +93,9 @@ Basic requirements
         set a password for the group
             $ gpasswd operators
 
-        To switch temporarily to the `operators` group from one of the created users, 
+        To switch temporarily to the `operators` group from one of the created users,
         there are a few options that can be used:
-        
+
             a)  The `newgrp` command:
                     $ newgrp operators
                 This command will create a new shell with the operators group as the current group.
@@ -120,7 +103,7 @@ Basic requirements
                 you can run
                     $ id
                 to verify that gid is set to the group invoked by newgrp
-            
+
             b)  The `sg` command:
                     $ sg operators "command"
                 This command will execute the following command in a new shell
@@ -137,13 +120,13 @@ Basic requirements
         export LOGINTIME=$(date -u --rfc-3339='s')
 
         You could also add a script file in `/etc/profile.d` dir,
-        as the scripts located there are all executed in `/etc/profile`  
-    
+        as the scripts located there are all executed in `/etc/profile`
+
     7. An example of Linux binary that has both statically linked and dynamically linked versions is bash,
     however only the dynamically linked version is installed by default.
         To install statically linked bash run:
             $ apt install bash-static
-    
+
         Size of files can be checked with
             $ du -h [FILE]...
 
@@ -166,7 +149,7 @@ Basic requirements
         /lib64/ld-linux-x86-64.so.2 is a dynamic linker
 
     8. batch command runs specified commands when the system is idle, it is a part of the `at` package
-    
+
         To install batch run:
             $ sudo apt install at
 
@@ -178,7 +161,7 @@ Basic requirements
         To sync the system time with external time server (tempus1.gum.gov.pl in this case)
         when the system is idle run:
             $ sudo batch
-        and in the displayed prompt 
+        and in the displayed prompt
             $ sudo rdate -n tempus1.gum.gov.pl
 
         to schedule the task press Ctrl + d or Ctrl + c to cancel
@@ -187,46 +170,43 @@ Basic requirements
         $ sudo apt update && sudo apt upgrade
 
         To determine the package from which file was installed:
-            $ dpkg -S file_path    
+            $ dpkg -S file_path
 
+## Advanced requirements
 
-===================================
-Advanced requirements
-===================================
-
-1. Install the OpenSSH server 
+1.  Install the OpenSSH server
     The OpenSSH server allows remote terminal access using the SSH protocol. You can install it by running the following command:
-        $ sudo apt install openssh-server
+    $ sudo apt install openssh-server
 
-2. Disable root login via password
+2.  Disable root login via password
     To do this the SSH configuration file `/etc/ssh/sshd_config` has to be modified.
     ( Actually on Ubuntu 22.04 root login via password is disabled by default )
     Locate the following line:
-        #PermitRootLogin yes
+    #PermitRootLogin yes
     uncomment it and change it to:
-        PermitRootLogin prohibit-password
+    PermitRootLogin prohibit-password
 
-3. Configure SSH access for the superuser
-    To allow remote access to the superuser using only the public SSH key, 
+3.  Configure SSH access for the superuser
+    To allow remote access to the superuser using only the public SSH key,
     you need to add the public key to the /root/.ssh/authorized_keys file.
 
     To generate public/private key pair you can use the following command:
-        $ ssh-keygen
+    $ ssh-keygen
     by default it will use the rsa algorithm
     Run the above command on a machine that you want to login from in ~/.ssh folder,
     then copy the generated public key to /root/.ssh/authorized_keys file on the configured server.
 
-4. Configure SSH access for other users
+4.  Configure SSH access for other users
     repeat the steps from point 3. but instead of modifying the /root/.ssh/authorized_keys file,
     modify ~/.ssh/authorized_keys files in home directories of respective users.
 
     Password login is enabled by default for non root users,
     but it can be changed by modifying `/etc/ssh/sshd_config` file
     find the line:
-        #PasswordAuthentication yes
+    #PasswordAuthentication yes
     uncomment it and choose yes/no to enable/disable password authentication
 
-5. Configure systemd targets
+5.  Configure systemd targets
     Because there are no runlevels in Ubuntu systemd targets have to be used.
     One way of meeting the task's requirements is to run the following set of commands:
 
@@ -240,34 +220,34 @@ Advanced requirements
         create a directory for multi-user-ssh dependecies
             $ mkdir multi-user-ssh.target.wants
         symlink multi-user.target into the created .wants dir,
-        in this way multi-user-ssh.target inherits all of the dependencies of multi-user.target 
+        in this way multi-user-ssh.target inherits all of the dependencies of multi-user.target
             $ ln -s multi-user.target multi-user-ssh.target.wants/multi-user.target
         symlink ssh.service to make it a dependancy
             $ ln -s ssh.service multi-user-ssh.target.wants/ssh.service
         disable ssh service while running the multi-user.target
             $ systemctl disable ssh.service
 
-6. Configure the booting menu to give the user the option of selecting multi-user-ssh.target
+6.  Configure the booting menu to give the user the option of selecting multi-user-ssh.target
     To do this modify the GRUB configuration file `/etc/default/grub`.
-    
+
     Locate the following lines:
-        GRUB_TIMEOUT_STYLE=hidden
-        GRUB_TIMEOUT=0
+    GRUB_TIMEOUT_STYLE=hidden
+    GRUB_TIMEOUT=0
     And change it to:
-        GRUB_TIMEOUT_STYLE=menu
-        GRUB_TIMEOUT=10
+    GRUB_TIMEOUT_STYLE=menu
+    GRUB_TIMEOUT=10
     here 10 is the number of seconds, before the system boots with the default option
 
     next modify the `/etc/grub.d/40_custom` file (or create it if it doesn't exist)
     the constents of the file should look similar to:
-    
+
     ```
         #!/bin/sh
         exec tail -n +3 $0
         # This file provides an easy way to add custom menu entries.  Simply type the
         # menu entries you want to add after this comment.  Be careful not to change
         # the 'exec tail' line above.
-        
+
         menuentry 'Ubuntu ssh enabled' --class ubuntu --class gnu-linux --class gnu --class os $menuentry_id_option 'gnulinux-simple-18e0b67e-dfd7-41c7-a47a-74b9ca6e7058' {
                 recordfail
                 load_video
@@ -287,61 +267,59 @@ Advanced requirements
         }
     ```
 
-    NOTE: you can't just copy & paste what's above as there are some unique ids present in the code. 
+    NOTE: you can't just copy & paste what's above as there are some unique ids present in the code.
     To obtain yours you can copy the corresponding fragment from `/boot/grub/grub.cfg`
 
     pay attention to the linux ... line
-        `systemd.unit=multi-user-ssh.target`
+    `systemd.unit=multi-user-ssh.target`
     fragment specifies with which systemd target the system will boot with
 
     to finalize the changes run
-        $ sudo update-grub
-    
+    $ sudo update-grub
+
     now after rebooting you should be able to see `Ubuntu ssh enabled` option in the GRUB menu.
 
-===================================
-Additional requirements
-===================================
+## Additional requirements
 
-1. Writers group
+1.  Writers group
     Set the "users" group as a primary group for the users run
-        $ usermod -g users athos 
-        $ usermod -g users porthos 
-        $ usermod -g users aramis
+    $ usermod -g users athos
+    $ usermod -g users porthos
+    $ usermod -g users aramis
 
     Create the new group:
-        $ sudo groupadd writers
-    
+    $ sudo groupadd writers
+
     Add "athos" and "porthos" to the "writers" group:
-        $ sudo usermod -aG writers athos
-        $ sudo usermod -aG writers porthos
+    $ sudo usermod -aG writers athos
+    $ sudo usermod -aG writers porthos
 
     Create a directory that the "writers" is supposed to have write permissions to
-        $ mkdir /path/to/directory
+    $ mkdir /path/to/directory
 
     Change the group ownership of the directory to "writers":
-        $ chown :writers /path/to/directory
+    $ chown :writers /path/to/directory
 
     Setgid and write permissions to group members for the directory,
     this makes any new files in that directory to be created with the ownership of the group of this directory
-        $ chmod g+ws /path/to/directory
+    $ chmod g+ws /path/to/directory
 
     The umask setting controls the default permissions for newly created files and directories,
     and it is not directly related to granting group write permissions on an existing directory.
 
     But to set default umask for all users add the following line to the `/etc/profile` file
-        umask 002
+    umask 002
 
-2. autolog
+2.  autolog
     $ sudo apt install autolog
 
     edit the `/etc/autolog.conf` file
     find the line starting with `group=users` and set it to
-        group=users     idle=5 grace=5
-    
+    group=users idle=5 grace=5
+
     or if it is to be applied to ALL user add the following line:
-        name=.*         idle=5 grace=5
-    
+    name=.\* idle=5 grace=5
+
     where idle is time in minutes after which the user will be logged off
     and grace is time in seconds added to the idle time in which the following notification is presented to the user:
 
@@ -351,7 +329,7 @@ Additional requirements
         |             unless you hit a key.            |
         `----------------------------------------------'
 
-3. limit disk space usage
+3.  limit disk space usage
     $ apt install quota
 
     edit `/etc/fstab` file, add usrquota to the filesystem options
@@ -360,13 +338,13 @@ Additional requirements
     /dev/disk/by-id/dm-uuid-LVM-t9GoO2dfSD8aDlY0qLELuFHsYO798S81zS1O1yVIqCXWBQY7iQkLZHuAb4caodaf / ext4 defaults,usrquota 0 1
 
     run:
-        $ reboot
-        $ quotacheck -cum /
-        $ quotaon -v /
+    $ reboot
+    $ quotacheck -cum /
+    $ quotaon -v /
 
     for each user:
-        $ edquota -u aramis
-    
+    $ edquota -u aramis
+
     and set the blocks and inode limits to the desired size
     blocks mean disk space in KB
     inodes mean the number of actual files
@@ -375,11 +353,11 @@ Additional requirements
     exemplary file, with the hard limit on blocks set to 1GB, could look like this:
 
     Disk quotas for user aramis (uid 1003):
-      Filesystem                            blocks       soft       hard     inodes     soft     hard
-      /dev/mapper/ubuntu--vg-ubuntu--lv          0          0    1048576          0        0        0
+    Filesystem blocks soft hard inodes soft hard
+    /dev/mapper/ubuntu--vg-ubuntu--lv 0 0 1048576 0 0 0
 
     to generate a report of current disk usage and limits run
-        $ repquota -au
+    $ repquota -au
 
     if a user tries to exceed the cofigured quota the following message will be displayed:
-        touch: cannot touch 'file': Disk quota exceeded
+    touch: cannot touch 'file': Disk quota exceeded

@@ -1,0 +1,168 @@
+Basic Vim manual for Operating Systems assignment at TUL
+by Bartosz Nowacki
+
+EDITOR INVOCATION
+	vim [options] [filename]
+	
+	If the filename is missing, the editor will start with an empty buffer.
+
+CURSOR NAVIGATION
+	Use the arrow keys or
+        h       to go left
+        j       to go down
+        k       to go up
+        l       to go right
+
+	:<line number>	to jump to any line,
+			run ":set number" to display line numbers
+
+	zz	center view on cursor
+	
+	jump to:
+	
+	w	beginning of next ord ("W" to ignore punctuation)
+	b	beginning of current or previous word ("B" to ignore punctuation)
+	e	end of current or next word ("E" to ignore punctuation)
+	f	followed by any character - next occurance of that character on the line 
+	{	previous block of code
+	}	next block of code
+        (       start of previus sentence
+        )       start of next sentence
+	%	closing/opening parentheses
+	0	beginning of line
+	$	end of line
+	gg	beginning of file
+	G	end of file
+	*	next occurance of word
+        #       previous occurance of word
+
+BASIC COMMANDS
+	You can combine commands with numbers to execute them x amount of times
+	e.g. "10j" would put the cursor 10 lines down
+
+	u	undo
+	^r 	redo
+	.	re-execute previous command
+
+TEXT INSERTION
+	Enter INSERT mode with one of follwing:
+		i	at cursor
+		I	at beginning of line
+		a	after cursor
+		A	at end of line
+		o	add new line under and start from there
+		O	add new line above and start from there
+                S       clear current line
+ 	 
+	then type as you normally would
+	press ESC in order to return to NORMAL mode
+	
+	r	followed by any character to replace value at cursor postion
+	R	enter REPLACE mode
+
+CHARACTER REMOVAL
+	x	cut selection or character at cursor position
+	dd	cut line
+
+OPERATIONS ON BLOCKS OF TEXT
+	Operating on blocks is best done in VISUAL mode
+  		v	to enter VISUAL mode
+		V	to enter VISUAL LINE mode (selecting by line)
+                ^v      to enter VISUAL BLOCK mode (selecting by column)
+        
+        Many commands can be combined with move commands
+        e.g. "d}" deletes from cursor to blocks end
+	 
+	SELECTING
+		To select a block of text enter VISUAL mode,
+		then move the cursor until the intended selection is achieved
+
+	COPYING
+		y	copy selection, can be combined with a move command instead
+		yy	copy line
+
+	PASTING
+		p	paste
+		"+p	paste from system clipboard
+  
+	MOVING
+		you can copy / cut selection and paste somewhere else
+
+		>	indent selection
+		<	remove one step of indentation
+
+	DELETION
+		d	delete selection
+                dd	delete line	
+		D	delete from cursor to end of line
+		
+		using "c" instead of "d" has the same result and changes the mode to INSERT
+	
+SEARCH AND SUBSTITUTION COMMANDS (WITH SIMPLE REGEX)
+        SEARCH
+                /[pattern]      searches for text in document
+                n               jump to next occurance of pattern
+                N               jump to previous occurance of pattern
+
+        SUBSTITUTION
+                By default the command replaces only the first occurance of the pattern
+        
+                :s/[pattern]/[replacement]/[options]            current line scope
+                :%s/...                                         file scope
+                :[start_line_number], [end_line_number] s/...   between (inclusive) specified lines scope
+                
+                
+                SOME POSSIBLE OPTIONS
+                        g       replace all occurances in scope
+                        i       case-insensitive search
+                        c       ask for confirmation before each replace 
+                                ("y" - yes, "n" - no, "a" - all, "q" - quit, "l" - one line)
+        REGEX CHEATSHEET
+                .       any character
+                []      character class e.g. [a-zA-z] matches any letter
+                \|      or 
+
+                SPECIAL CHARACTERS (uppercase version means negation) 
+                        \d      decimal digit
+                        \l      lowercase letter
+                        \u      uppercase letter
+                        \x      hex digit
+                        \s      whitespace character
+                        \w      word character (lower and uppercase alphabets, numbers, and underscore)
+
+                QUANTIFIERS (match preceding character/group)
+                        \{n,m}    n to m times 
+                        \{-n,m}   lazy n to m times (smallest possible match)
+                        *         zero or more
+                        \+        one or more
+                        \?        zero or one      
+                
+                ANCHORS
+                        ^       line start
+                        $       line end
+                        \<      word start
+                        \>      word end
+                GROUPS
+                        \([pattern]\)   capture group
+                        \n              where n is an integer, reference nth group
+
+FILE OPERATIONS FROM WITHIN EDITOR
+	SAVING
+	        :w 	        save
+                :w [filename]   save a copy of the file with a provided name
+
+	OPENING
+                :e [filename]   open file or create a new one
+
+FINISHING WORK WITH EDITOR
+	:q 	quit an unmodified file
+	:q! 	discard changes and quit
+	:wq 	save and quit
+
+SOURCES
+        - official vim reference manual available under ":help" command
+        - various YouTube videos
+        - https://www.keycdn.com/blog/vim-commands
+        - https://www.baeldung.com/linux/vim-search-replace
+        - https://dev.to/iggredible/learning-vim-regex-26ep
+

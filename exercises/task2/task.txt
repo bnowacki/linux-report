@@ -1,0 +1,20 @@
+
+Bash internal command 'alias' is dedicated to renaming existing commands. 
+It is also possible to create a new command based on existing one be passing additional parameters to it, e.g.
+
+alias l='ls -l'
+
+From this moment, invocation of newly created command 'l' is equivalent to 'ls -l'.
+New name can be identical to the one already defined, what can be used to change a default behaviour of redefined command.
+The most permanent effect can be obtained by placing aliases in shell's start script (see Problem 1).
+Detailed description of alias command can be found in bash man page (man bash).
+
+'rm' removes files.
+'cp' and 'mv', in specific conditions, also lead to deletion of files.
+Each of them has parameters, passing of which prevents cp and mv from file removal without earlier user permission.
+Parameters can be found in manuals.
+Task: 
+        Create 'secure' versions of commands 
+                [x] rm -> del
+                [x] cp -> copy
+                [x] mv -> move

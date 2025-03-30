@@ -1,0 +1,13 @@
+Some editors like 'jed' create backup copies of edited files by adding ~'' to their name.
+As an example, the previous version of the file 'file.txt' will have name 'file.txt~'.
+
+In case of severe fault in the program operating system can abort it,
+putting its virtual memory dump in file 'core' (in current directory),
+what can be used to to find the cause post mortem.
+
+Task: Write a script cleaning 'user' home directory and all it's subdirectories from those kinds of files.
+The command 'find' can be used to search appropriate files (see man 'find').
+
+CAUTION: Search should be started from 'user' home dir. Do not search entire file system.
+
+CAUTION 2: The script should have permissions to execute for all entities (see man 'chmod').

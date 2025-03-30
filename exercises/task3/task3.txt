@@ -1,0 +1,13 @@
+Command 'uname' prints (depending on options used ) various informations about host (see manual).
+'id' command can provide information about user, his main and auxiliary groups etc. (see manual).
+
+Task: Write a short script printing (in consecutive lines) information helpful to absent-minded user:
+
+        username,
+        main group name,
+        all group names, to which the user belongs,
+        hostname, on which he is working,
+        current directory name.
+
+CAUTION: The script should have permissions to execute for all entities (see 'man chmod').
+

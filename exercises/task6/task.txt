@@ -1,0 +1,16 @@
+The task is to inform the user being logging out about all processes he is leaving in the system.
+
+During main session closing a shell (in this case bash)
+executes ~/.bash_logout script, so this is the file that should be modified.
+
+A process list can be obtained using 'ps' command (see man 'ps').
+The print should contain parental relations among processes in the form of tree or forest (look for appropriate parameters).
+
+After describing processes the user should be asked to hit any key,
+after which the screen should be cleaned (see man 'clear').
+
+Waiting on user prompt can be done using 'read' (see man 'bash'),
+using which 1 character should be read without echo.
+Maximal wait time can also be set.
+
+CAUTION: The script should have set permissions to execute for all entities

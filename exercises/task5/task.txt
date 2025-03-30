@@ -1,0 +1,12 @@
+The machine that goes ping'' (see Monty Python's Meaning of Life'')
+emits professional signal 'ping' in one second intervals.
+
+Task: Write a short script emulating the work of ping 'machine'.
+The sound 'ping' can be signalled using 'echo' command (see man 'echo'),
+one second pause - using 'sleep' (see man 'sleep').
+
+CAUTION : The script should work infinitely.
+
+CAUTION 2: The script must not scroll the screen during its operations.
+
+CAUTION 3: The script should have set permissions to execute for all entities (see man chmod'').

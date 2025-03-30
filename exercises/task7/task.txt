@@ -1,0 +1,11 @@
+Task: 
+Create a bash script, which will print actual hour time at the console 
+(hour,minutes and seconds - see man date).
+Printing should be done in one line - new values should replace the old ones.
+It is sugested to perform time read not often than once a second, e.g. using sleep (see man sleep).
+
+CAUTION: To avoid scrolling the screen to infinity an appropriate control sequences should be used during printing (see man echo, or read about terminals, their amulation and control sequences).
+
+CAUTION 2: The script should work infinitely.
+
+CAUTION 3: The script should have set permissions to execute for all entities

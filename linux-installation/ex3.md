@@ -17,12 +17,11 @@ Configure the installed system to meet the following requirements:
 
 [x] For every user enviroment variable LOGINTIME should be created after logging in. This variable should contain UTC time of the login (date, /etc/profile, /etc/profile.d, export)
 
-[x] Find in a system at least one program that has two versions of its binaries: statically linked and dynamically linked. Compare their sizes. Find for such a program a list of shared libraries that it is using and demonstrate that these libraries are present in the system (ldd, lddconfig, /etc/ld.so.conf, /etc/ld.so.d/*)
+[x] Find in a system at least one program that has two versions of its binaries: statically linked and dynamically linked. Compare their sizes. Find for such a program a list of shared libraries that it is using and demonstrate that these libraries are present in the system (ldd, lddconfig, /etc/ld.so.conf, /etc/ld.so.d/\*)
 
 [x] When the system is idle synchronize the system time with external time server (batch, rdate, date, cal, hwclock, timeconfig, /etc/sysconfig/time)
 
 [x] All software packages in the system should be updated to their latest versions. Additionally, for any given file determine the package from which it was installed (apt, arch, rpm, uname, yum, aptitude)
-
 
 Advanced requirements
 Points: 15
@@ -56,7 +55,6 @@ Additionally athos and porthos should belong to writers group, which has write p
 [ ] every 30 minutes a report containing list of files modified during last 30 minutes in users' home directories must be generated - use cron and find
 [x] limit disk space usage for users athos, porthos and aramis - use quota
 [ ] limit the number of processes that may be run simultaneously by a user belonging to users group to 10. Use PAM mechanism (pam_limits module).
-
 
 Materials and documentation
 Source of knowledge on operations performed during installation and configuration of the system is [LINUX documentation], manuals and available HOWTOs.

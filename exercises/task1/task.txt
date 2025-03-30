@@ -1,0 +1,12 @@
+Prompt string
+
+Bourne Again Shell (bash), similarly to other UNIX shells utilises environmental variable PS1'' to store prompt string description. 
+Willing to change it, it is enough to replace its value with a new one.
+The most permanently looking effect can be obtained by performing adequate substitution in start script, 
+which in case of bash is in ~/.bash_profile file (~ stands for the home directory of a user in question).
+Prompt string can contain sequences like \x, where x - a character, which during printing of prompt will be interpreted and substituted with specific information, e.g. \t - actual time.
+Description of other standard sequences can be found in man page concerning bash (man bash).
+
+Task: Permamently set URL-like prompt of the form:
+
+<shell-name>://<username>@<host>/<current-directory><caret-return (CR)>$
